@@ -15,9 +15,13 @@ void MainMenu()
     bool active = true;
     while (active)
     {
+        dir0 = "";
+        dir1 = "";
+
         UI.Header("Main Menu");
         UI.Write("Compare the contents of two folders");
         UI.Write("");
+        UI.Write("Enter path of first directory...");
 
         string tempDir0 = Input.GetDirectory();
 
@@ -25,8 +29,8 @@ void MainMenu()
         {
             dir0 = tempDir0;
 
-
-            UI.Write("Input second directory");
+            UI.Header("Compare to...");
+            UI.Write("Enter path of second directory...");
             string tempDir1 = Input.GetDirectory();
 
             if (tempDir1 != "")
@@ -42,8 +46,6 @@ void MainMenu()
 
 void CompareContents()
 {
-    UI.Header("Compare Contents");
-
     string[] files0 = Directory.GetFiles(dir0);
     string[] files1 = Directory.GetFiles(dir1);
 
@@ -83,44 +85,113 @@ void CompareContents()
         }
     }
 
-    // Show duplicate files
-    UI.Write("Duplicate Files:");
-    int duplicateCount = 0;
+    // Duplicate files
+    List<string> duplicateFiles = new();
 
     foreach (string key in results.Keys)
     {
         if (results[key].count > 1)
         {
-            UI.Write($"\tName: {key}");
-
-            duplicateCount++;
+            duplicateFiles.Add(key);
         }
     }
 
-    UI.Write("");
-    UI.Write("");
+    // Unique files
+    List<string> uniqueFiles0 = new();
+    List<string> uniqueFiles1 = new();
 
-    // Show unique files, and their path
-    UI.Write("Unique Files:");
-    int uniqueCount = 0;
-    foreach (string key in results.Keys)
+    foreach (string key in results.Keys )
     {
         if (results[key].count <= 1)
         {
-            UI.Write($"\tName: {key} \n\tPath: \"{results[key].path}\"");
-            UI.Write("");
+            string dir = Path.GetDirectoryName(results[key].path);
+            if (dir == dir0)
+            {
+                uniqueFiles0.Add(key);
+            }
+            else if (dir == dir1)
+            {
+                uniqueFiles1.Add(key);
+            }
+            else
+            {
+                UI.Error("You done fucked up the code something fierce.");
+            }
+        }
+    }
 
-            uniqueCount++;
+
+    UI.Header("Done");
+    UI.Write("Show duplicates?");
+    UI.Option("true", "Yes");
+    UI.Option("false", "No");
+
+    bool showDuplicates = Input.GetBoolean(false);
+
+    // DUPLICATE FILES
+
+    UI.Header("Compare Contents");
+
+    UI.Write("");
+    UI.Write($"{duplicateFiles.Count} duplicate files found");
+
+
+    if (showDuplicates)
+    {
+        UI.Write("");
+
+        foreach (string key in duplicateFiles)
+        {
+            UI.Write($"\t\"{key}\"");
         }
     }
 
     UI.Write("");
     UI.Write("");
 
-    UI.Write($"Duplicate files: {duplicateCount}");
-    UI.Write($"Unique files: {uniqueCount}");
+    UI.Write("---------------------------------------------------");
+
+
+    // UNIQUE FILES
+
+    UI.Write("");
+    UI.Write("");
+    UI.Write($"{uniqueFiles0.Count} unique files in \"{dir0}\"");
+    UI.Write("");
+    foreach (string key in uniqueFiles0)
+    {
+        UI.Write($"\t\"{key}\"");
+    }
+    UI.Write("");
+    UI.Write("");
+
+    UI.Write("---------------------------------------------------");
+
+    UI.Write("");
+    UI.Write("");
+    UI.Write($"{uniqueFiles1.Count} unique files in \"{dir1}\"");
+    UI.Write("");
+    foreach (string key in uniqueFiles1)
+    {
+        UI.Write($"\t\"{key}\"");
+    }
+
+    UI.Write("");
+    UI.Write("");
+
+    // TOTALS
+
+    int uniqueCount = uniqueFiles0.Count + uniqueFiles1.Count;
+
+    UI.Write($"{uniqueCount} unique files, {duplicateFiles.Count} duplicates.");
+    UI.Write($"Total count: {uniqueCount + duplicateFiles.Count}");
+
 
     UI.Pause();
+
+    duplicateFiles.Clear();
+    uniqueFiles0.Clear();
+    uniqueFiles1.Clear();
 }
 
 
