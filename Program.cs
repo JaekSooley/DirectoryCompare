@@ -3,12 +3,6 @@ using System;
 using System.IO;
 
 
-/*
-string dir0;
-string dir1;
-*/
-
-
 MainMenu();
 
 
@@ -66,8 +60,8 @@ void CompareMenu()
             {
                 dir1 = input1;
 
-                string[] files0 = Directory.GetFiles(dir0);
-                string[] files1 = Directory.GetFiles(dir1);
+                List<string> files0 = Directory.GetFiles(dir0).ToList();
+                List<string> files1 = Directory.GetFiles(dir1).ToList();
 
                 Dictionary<string, FileEntry> results = new();
 
@@ -105,7 +99,7 @@ void CompareMenu()
                     }
                 }
 
-                // Duplicate files
+                // Get duplicate files
                 List<string> duplicateFiles = new();
 
                 foreach (string key in results.Keys)
@@ -116,7 +110,7 @@ void CompareMenu()
                     }
                 }
 
-                // Unique files
+                // Get unique files
                 List<string> uniqueFiles0 = new();
                 List<string> uniqueFiles1 = new();
 
@@ -124,7 +118,7 @@ void CompareMenu()
                 {
                     if (results[key].count <= 1)
                     {
-                        string dir = Path.GetDirectoryName(results[key].path);
+                        string? dir = Path.GetDirectoryName(results[key].path);
 
                         if (dir != null)
                         {
@@ -148,8 +142,8 @@ void CompareMenu()
 
                 UI.Header("Done");
                 UI.Write("Show duplicates?");
-                UI.Option("Y", "Yes");
-                UI.Option("N", "No");
+                UI.Option("[Y]ES");
+                UI.Option("[N]O");
 
                 bool showDuplicates = true;
 
@@ -161,10 +155,12 @@ void CompareMenu()
                     switch (showDuplicatesInput.ToUpper())
                     {
                         case "Y":
+                        case "YES":
                             showDuplicates = true;
                             loop = false;
                             break;
                         case "N":
+                        case "NO":
                             showDuplicates = false;
                             loop = false;
                             break;
@@ -176,10 +172,7 @@ void CompareMenu()
                 // DUPLICATE FILES
 
                 UI.Header("Compare Contents");
-
-                UI.Write("");
                 UI.Write($"{duplicateFiles.Count} duplicate files found");
-
 
                 if (showDuplicates)
                 {
@@ -233,6 +226,7 @@ void CompareMenu()
 
 
                 UI.Pause();
+                active = false;
             }
         }
         else
